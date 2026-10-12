@@ -1,0 +1,181 @@
+import { StyleSheet, Platform } from "react-native";
+
+const BG_COLOR = "#E5CCA0"; // Твоя любимая Золотая Степь
+
+export const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		backgroundColor: BG_COLOR,
+		paddingHorizontal: 16,
+		paddingTop: Platform.OS === "ios" ? 50 : 40,
+	},
+
+	// СТИЛИ ХЕДЕРА (Выдавленная неоморфная плашка)
+	headerNeo: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		backgroundColor: BG_COLOR,
+		borderRadius: 20,
+		paddingHorizontal: 16,
+		paddingVertical: 12,
+		marginBottom: 16,
+		borderWidth: 1,
+		borderColor: "rgba(255, 255, 255, 0.01)",
+		boxShadow: "3px 3px 6px rgba(130, 110, 85, 0.8), -3px -3px 6px rgba(255, 255, 255, 0.9)",
+		elevation: 4,
+	},
+	backButtonNeo: {
+		width: 38,
+		height: 38,
+		borderRadius: 12,
+		backgroundColor: BG_COLOR,
+		alignItems: "center",
+		justifyContent: "center",
+		borderWidth: 1,
+		borderColor: "rgba(255, 255, 255, 0.01)",
+		boxShadow: "2px 2px 4px rgba(130, 110, 85, 0.7), -2px -2px 4px rgba(255, 255, 255, 0.9)",
+	},
+	backButtonText: {
+		fontFamily: "Playpen-Bold",
+		fontSize: 20,
+		color: "#3E2F1C",
+	},
+	headerInfo: {
+		flex: 1,
+		marginLeft: 16,
+	},
+	headerName: {
+		fontFamily: "Playpen-Bold",
+		fontSize: 18,
+		color: "#3E2F1C",
+	},
+	headerStatus: {
+		fontFamily: "Playpen-Regular",
+		fontSize: 12,
+		color: "#7C6652",
+		marginTop: 2,
+	},
+	avatarOuter: {
+		width: 42,
+		height: 42,
+		borderRadius: 14,
+		backgroundColor: BG_COLOR,
+		padding: 2,
+		borderWidth: 1,
+		borderColor: "rgba(255, 255, 255, 0.01)",
+		boxShadow: "2px 2px 4px rgba(130, 110, 85, 0.6), -2px -2px 4px rgba(255, 255, 255, 0.9)",
+	},
+	avatarImg: {
+		width: "100%",
+		height: "100%",
+		borderRadius: 12,
+	},
+
+	// ЛЕНТА СООБЩЕНИЙ
+	messagesList: {
+		paddingVertical: 10,
+		paddingHorizontal: 16,
+		gap: 16,
+	},
+	messageWrapper: {
+		flexDirection: "row",
+		width: "100%",
+	},
+
+	// Облачко ЧУЖОГО сообщения (Выдавлено в цвет фона)
+	messageCardOtherNeo: {
+		backgroundColor: BG_COLOR,
+		maxWidth: "75%",
+		borderRadius: 18,
+		borderBottomLeftRadius: 4, // Красивый уголок мессенджера
+		paddingHorizontal: 14,
+		paddingVertical: 10,
+		borderWidth: 1,
+		borderColor: "rgba(255, 255, 255, 0.01)",
+		boxShadow: "3px 3px 6px rgba(130, 110, 85, 0.7), -3px -3px 6px rgba(255, 255, 255, 0.9)",
+		elevation: 3,
+	},
+	messageTextOther: {
+		fontFamily: "Playpen-Regular",
+		fontSize: 15,
+		color: "#3E2F1C",
+	},
+
+	// Облачко ТВОЕГО сообщения (Чуть теплее и сочнее, кофейно-замшевое)
+	messageCardMeNeo: {
+		backgroundColor: "#DCCFBF", // Благородное миндальное пралине для твоих сообщений
+		maxWidth: "75%",
+		borderRadius: 18,
+		borderBottomRightRadius: 4,
+		paddingHorizontal: 14,
+		paddingVertical: 10,
+		borderWidth: 1,
+		borderColor: "rgba(255, 255, 255, 0.01)",
+		boxShadow: "3px 3px 6px rgba(110, 95, 75, 0.6), -3px -3px 6px rgba(255, 255, 255, 0.8)",
+		elevation: 3,
+	},
+	messageTextMe: {
+		fontFamily: "Playpen-Regular",
+		fontSize: 15,
+		color: "#2A1E12", // Глубокий кофейный цвет текста
+	},
+	messageTime: {
+		fontFamily: "Playpen-Regular",
+		fontSize: 10,
+		color: "#8A7660",
+		textAlign: "right",
+		marginTop: 4,
+	},
+
+	// НИЖНЯЯ ПАНЕЛЬ ВВОДА
+	inputContainer: {
+		flexDirection: "row",
+		alignItems: "center",
+		paddingVertical: 12,
+		backgroundColor: BG_COLOR,
+		gap: 12,
+	},
+	inputWrapperNeo: {
+		flex: 1,
+		backgroundColor: BG_COLOR,
+		borderRadius: 16,
+		borderWidth: 1,
+		borderColor: "rgba(255, 255, 255, 0.01)",
+		boxShadow: "inset 2px 2px 2px rgba(130, 110, 85, 0.45), inset -2px -2px 2px rgba(255, 255, 255, 0.85)",
+	},
+	chatInput: {
+		fontFamily: "Playpen-Regular",
+		width: "100%",
+		paddingHorizontal: 16,
+		paddingVertical: 10,
+		fontSize: 15,
+		color: "#000000", // Чистый чёрный цвет текста при вводе!
+		maxHeight: 100,
+	},
+	sendButtonNeo: {
+		width: 44,
+		height: 44,
+		borderRadius: 16,
+		backgroundColor: BG_COLOR,
+		alignItems: "center",
+		justifyContent: "center",
+		borderWidth: 1,
+		borderColor: "rgba(255, 255, 255, 0.01)",
+		boxShadow: "3px 3px 5px rgba(130, 110, 85, 0.8), -3px -3px 5px rgba(255, 255, 255, 0.9)",
+		elevation: 3,
+	},
+	sendButtonText: {
+		fontSize: 18,
+		color: "#3E2F1C",
+	},
+
+	buttonPressedNeo: {
+		shadowColor: "transparent",
+		shadowOffset: { width: 0, height: 0 },
+		shadowOpacity: 0.3,
+		shadowRadius: 5,
+		boxShadow: "0px 0px 5px rgba(255, 255, 255, 0.6)",
+		backgroundColor: "rgba(255, 255, 255, 0.01)",
+	},
+});

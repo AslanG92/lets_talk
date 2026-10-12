@@ -71,7 +71,7 @@ export const styles = StyleSheet.create({
 		fontSize: 15,
 		borderWidth: 1,
 		borderColor: "rgba(255, 255, 255, 0.01)",
-		boxShadow: "inset 3px 3px 6px rgba(0, 0, 0, 0.6), inset -3px -3px 6px rgba(255, 255, 255, 0.4)",
+		boxShadow: "inset 2px 2px 2px rgba(0, 0, 0, 0.6), inset -2px -2px 2px rgba(255, 255, 255, 0.6)",
 	},
 
 	bottomButtonsContainer: {

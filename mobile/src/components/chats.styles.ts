@@ -138,4 +138,13 @@ export const styles = StyleSheet.create({
 		fontSize: 11,
 		color: "#1E3A8A",
 	},
+
+	chatCardNeoPressed: {
+		shadowColor: "transparent",
+		shadowOffset: { width: 0, height: 0 },
+		shadowOpacity: 0.3,
+		shadowRadius: 5,
+		boxShadow: "0px 0px 5px rgba(255, 255, 255, 0.6)",
+		backgroundColor: "rgba(255, 255, 255, 0.01)",
+	},
 });

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, TextInput, TouchableOpacity, Image, ActivityIndicator } from "react-native";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { View, Text, ScrollView, TextInput, Image, ActivityIndicator, Pressable } from "react-native";
 import { useFonts, PlaypenSans_400Regular, PlaypenSans_700Bold } from "@expo-google-fonts/playpen-sans";
 import { styles } from "../components/chats.styles";
 
@@ -24,6 +25,7 @@ const DUMMY_CHATS = [
 ];
 
 export default function ChatsScreen() {
+	const router = useRouter();
 	const [search, setSearch] = useState("");
 	const [fontsLoaded] = useFonts({
 		"Playpen-Regular": PlaypenSans_400Regular,
@@ -77,7 +79,20 @@ export default function ChatsScreen() {
 
 			<ScrollView contentContainerStyle={styles.scrollList} showsVerticalScrollIndicator={false}>
 				{DUMMY_CHATS.map((chat) => (
-					<TouchableOpacity key={chat.id} style={styles.chatCardNeo}>
+					<Pressable
+						key={chat.id}
+						style={({ pressed }) => [
+							styles.chatCardNeo,
+							pressed && styles.chatCardNeoPressed,
+							{ transform: [{ scale: pressed ? 0.98 : 1 }] },
+						]}
+						onPress={() =>
+							router.push({
+								pathname: "/chat-room",
+								params: { name: chat.name, avatar: chat.avatar },
+							})
+						}
+					>
 						<View style={styles.chatRow}>
 							<Image source={{ uri: chat.avatar }} style={styles.chatAvatar} />
 
@@ -97,7 +112,7 @@ export default function ChatsScreen() {
 								</View>
 							)}
 						</View>
-					</TouchableOpacity>
+					</Pressable>
 				))}
 			</ScrollView>
 		</View>
