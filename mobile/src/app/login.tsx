@@ -1,5 +1,17 @@
-import { useState } from "react";
-import { View, Text, TextInput, Pressable, ActivityIndicator, ImageBackground, Alert, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import {
+	View,
+	Text,
+	TextInput,
+	Pressable,
+	ActivityIndicator,
+	ImageBackground,
+	Alert,
+	TouchableOpacity,
+	KeyboardAvoidingView,
+	Platform,
+	ScrollView,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useFonts, PlaypenSans_400Regular, PlaypenSans_700Bold } from "@expo-google-fonts/playpen-sans";
@@ -14,9 +26,8 @@ export default function AuthScreen() {
 	const [lang, setLang] = useState<"en" | "os">("os");
 	const [step, setStep] = useState<"intro" | "form">("intro");
 	const [isLogin, setIsLogin] = useState(true);
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
 	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
 
 	const [fontsLoaded] = useFonts({
@@ -41,30 +52,38 @@ export default function AuthScreen() {
 	}
 
 	const handleAction = async () => {
-		if (email.trim() === "" && password.trim() === "") return;
-		if (!email || !password || (!isLogin && !username)) {
+		if (!username.trim() || !password.trim()) {
 			Alert.alert(t.error, t.errorFields);
 			return;
 		}
 
 		setLoading(true);
 		try {
-			const response = await fetch(isLogin ? API_ENDPOINTS.LOGIN : API_ENDPOINTS.REGISTER, {
+			const endpoint = isLogin ? API_ENDPOINTS.LOGIN : API_ENDPOINTS.REGISTER;
+
+			const res = await fetch(endpoint, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(isLogin ? { email, password } : { email, password, username }),
+				body: JSON.stringify({
+					username: username.trim(),
+					password: password,
+					lang: lang,
+				}),
 			});
-			const result = await response.json();
+			const result = await res.json();
+
 			if (result.success) {
-				Alert.alert(t.success, lang === "os" ? "Ӕнтыстджынӕй регистраци рацыдтӕ!" : "Success!");
-				if (!isLogin) {
+				if (isLogin) {
+					router.replace("/chats");
+				} else {
+					Alert.alert(t.success, lang === "os" ? "Ӕнтыстджынӕй регистраци рацыдтӕ!" : "Success!");
 					setIsLogin(true);
 					setStep("form");
 				}
 			} else {
 				Alert.alert(t.error, result.error || "Error");
 			}
-		} catch (error) {
+		} catch (e) {
 			Alert.alert(t.error, t.errorNetwork);
 		} finally {
 			setLoading(false);
@@ -78,143 +97,138 @@ export default function AuthScreen() {
 			resizeMode="stretch"
 			blurRadius={step === "form" ? 3 : 0}
 		>
-			<View style={styles.overlay}>
-				<View style={styles.topLangContainer}>
-					<TouchableOpacity style={{ marginRight: 16 }} onPress={() => setLang("os")}>
-						<Text style={[styles.langText, lang === "os" && styles.langActive]}>Ирон ☀️</Text>
-					</TouchableOpacity>
-					<TouchableOpacity onPress={() => setLang("en")}>
-						<Text style={[styles.langText, lang === "en" && styles.langActive]}>EN 🇬🇧</Text>
-					</TouchableOpacity>
-				</View>
+			<KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "padding"} style={{ flex: 1 }}>
+				<ScrollView
+					contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 40 }}
+					bounces={false}
+					keyboardShouldPersistTaps="handled"
+				>
+					<View style={styles.topLangContainer}>
+						<TouchableOpacity style={{ marginRight: 16 }} onPress={() => setLang("os")}>
+							<Text style={[styles.langText, lang === "os" && styles.langActive]}>Ирон ☀️</Text>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => setLang("en")}>
+							<Text style={[styles.langText, lang === "en" && styles.langActive]}>EN 🇬🇧</Text>
+						</TouchableOpacity>
+					</View>
 
-				<View style={styles.topHeaderContainer}>
-					<Text style={styles.mainTitle}>
-						{step === "intro" ? t.welcomeBack : isLogin ? t.welcomeBack : t.createAccount}
-					</Text>
-				</View>
+					<View style={styles.topHeaderContainer}>
+						<Text style={styles.mainTitle}>
+							{step === "intro" ? t.welcomeBack : isLogin ? t.welcomeBack : t.createAccount}
+						</Text>
+					</View>
 
-				<View style={styles.centerFieldsContainer}>
-					{step === "form" && (
-						<View style={styles.neumorphicCard}>
-							{!isLogin && (
+					<View style={[styles.centerFieldsContainer, { marginBottom: 30 }]}>
+						{step === "form" && (
+							<View style={styles.neumorphicCard}>
 								<View style={styles.inputWrapper}>
 									<Text style={styles.fieldLabel}>{t.username}</Text>
 									<TextInput
 										style={styles.transparentInput}
-										placeholder="Username"
+										placeholder={t.placeholderUsername}
 										placeholderTextColor="rgba(255, 255, 255, 0.4)"
 										value={username}
 										onChangeText={setUsername}
 										autoCapitalize="none"
+										cursorColor="#000000"
+										selectionColor="#000000"
 									/>
 								</View>
-							)}
 
-							<View style={styles.inputWrapper}>
-								<Text style={styles.fieldLabel}>{t.email}</Text>
-								<TextInput
-									style={styles.transparentInput}
-									placeholder="Email"
-									placeholderTextColor="rgba(255, 255, 255, 0.4)"
-									value={email}
-									onChangeText={setEmail}
-									keyboardType="email-address"
-									autoCapitalize="none"
-								/>
+								<View style={styles.inputWrapper}>
+									<Text style={styles.fieldLabel}>{t.password}</Text>
+									<TextInput
+										style={styles.transparentInput}
+										placeholder={t.placeholderPassword}
+										placeholderTextColor="rgba(255, 255, 255, 0.4)"
+										value={password}
+										onChangeText={setPassword}
+										secureTextEntry
+										autoCapitalize="none"
+										cursorColor="#000000"
+										selectionColor="#000000"
+									/>
+								</View>
 							</View>
+						)}
+					</View>
 
-							<View style={styles.inputWrapper}>
-								<Text style={styles.fieldLabel}>{t.password}</Text>
-								<TextInput
-									style={styles.transparentInput}
-									placeholder="Password"
-									placeholderTextColor="rgba(255, 255, 255, 0.4)"
-									value={password}
-									onChangeText={setPassword}
-									secureTextEntry
-									autoCapitalize="none"
-								/>
-							</View>
-						</View>
-					)}
-				</View>
-
-				<View style={styles.bottomButtonsContainer}>
-					{step === "intro" ? (
-						<>
-							<Pressable
-								style={({ pressed }) => [
-									styles.pureExtrudedButton,
-									pressed && styles.pureExtrudedButtonPressed,
-									{ transform: [{ scale: pressed ? 0.94 : 1 }] },
-								]}
-								onPress={() => {
-									setIsLogin(true);
-									setStep("form");
-								}}
-							>
-								{({ pressed }) => (
-									<Text style={[styles.pureButtonText, { color: pressed ? "#F5F5DC" : "#F5F5DC" }]}>
-										{t.startLogin}
-									</Text>
-								)}
-							</Pressable>
-
-							<Pressable
-								style={({ pressed }) => [
-									styles.pureExtrudedButton,
-									pressed && styles.pureExtrudedButtonPressed,
-									{ transform: [{ scale: pressed ? 0.94 : 1 }] },
-								]}
-								onPress={() => {
-									setIsLogin(false);
-									setStep("form");
-								}}
-							>
-								{({ pressed }) => (
-									<Text style={[styles.pureButtonText, { color: pressed ? "#F5F5DC" : "#F5F5DC" }]}>
-										{t.startRegister}
-									</Text>
-								)}
-							</Pressable>
-						</>
-					) : (
-						<>
-							<Pressable
-								style={({ pressed }) => [
-									styles.pureExtrudedButton,
-									pressed && styles.pureExtrudedButtonPressed,
-									{ transform: [{ scale: pressed ? 0.94 : 1 }] },
-								]}
-								onPress={handleAction}
-								disabled={loading}
-							>
-								{({ pressed }) =>
-									loading ? (
-										<ActivityIndicator color={CLICKED_COLOR} />
-									) : (
-										<Text style={[styles.pureButtonText, { color: pressed ? "#F5F5DC" : "#F5F5DC" }]}>
-											{isLogin ? t.login : t.register}
+					<View style={[styles.bottomButtonsContainer, step === "intro" && { marginTop: "auto" }]}>
+						{step === "intro" ? (
+							<>
+								<Pressable
+									style={({ pressed }) => [
+										styles.pureExtrudedButton,
+										pressed && styles.pureExtrudedButtonPressed,
+										{ transform: [{ scale: pressed ? 0.94 : 1 }] },
+									]}
+									onPress={() => {
+										setIsLogin(true);
+										setStep("form");
+									}}
+								>
+									{({ pressed }) => (
+										<Text style={[styles.pureButtonText, { color: pressed ? CLICKED_COLOR : "#F5F5DC" }]}>
+											{t.startLogin}
 										</Text>
-									)
-								}
-							</Pressable>
+									)}
+								</Pressable>
 
-							<TouchableOpacity
-								style={{ alignItems: "center", marginTop: 10 }}
-								onPress={() => setIsLogin(!isLogin)}
-							>
-								<Text style={styles.switchText}>{isLogin ? t.noAccount : t.hasAccount}</Text>
-							</TouchableOpacity>
+								<Pressable
+									style={({ pressed }) => [
+										styles.pureExtrudedButton,
+										pressed && styles.pureExtrudedButtonPressed,
+										{ transform: [{ scale: pressed ? 0.94 : 1 }] },
+									]}
+									onPress={() => {
+										setIsLogin(false);
+										setStep("form");
+									}}
+								>
+									{({ pressed }) => (
+										<Text style={[styles.pureButtonText, { color: pressed ? CLICKED_COLOR : "#F5F5DC" }]}>
+											{t.startRegister}
+										</Text>
+									)}
+								</Pressable>
+							</>
+						) : (
+							<>
+								<Pressable
+									style={({ pressed }) => [
+										styles.pureExtrudedButton,
+										pressed && styles.pureExtrudedButtonPressed,
+										{ transform: [{ scale: pressed ? 0.94 : 1 }] },
+									]}
+									onPress={handleAction}
+									disabled={loading}
+								>
+									{({ pressed }) =>
+										loading ? (
+											<ActivityIndicator color={CLICKED_COLOR} />
+										) : (
+											<Text style={[styles.pureButtonText, { color: pressed ? CLICKED_COLOR : "#F5F5DC" }]}>
+												{isLogin ? t.login : lang === "os" ? "Регистраци" : "Register"}
+											</Text>
+										)
+									}
+								</Pressable>
 
-							<TouchableOpacity style={{ alignItems: "center", marginTop: 5 }} onPress={() => setStep("intro")}>
-								<Text style={[styles.switchText, { opacity: 0.6 }]}>{t.back}</Text>
-							</TouchableOpacity>
-						</>
-					)}
-				</View>
-			</View>
+								<TouchableOpacity
+									style={{ alignItems: "center", marginTop: 10 }}
+									onPress={() => setIsLogin(!isLogin)}
+								>
+									<Text style={styles.switchText}>{isLogin ? t.noAccount : t.hasAccount}</Text>
+								</TouchableOpacity>
+
+								<TouchableOpacity style={{ alignItems: "center", marginTop: 5 }} onPress={() => setStep("intro")}>
+									<Text style={[styles.switchText, { opacity: 0.6 }]}>{t.back}</Text>
+								</TouchableOpacity>
+							</>
+						)}
+					</View>
+				</ScrollView>
+			</KeyboardAvoidingView>
 
 			<VideoView style={{ width: 0, height: 0 }} player={player} nativeControls={false} />
 		</ImageBackground>

@@ -11,6 +11,14 @@ export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 	auth: {
 		persistSession: false,
 	},
+
+	global: {
+		headers: {
+			"Cache-Control": "no-cache",
+			Pragma: "no-cache",
+			Expires: "0",
+		},
+	},
 });
 
 console.log("✅ Supabase client initialization was successful.");

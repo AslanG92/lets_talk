@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
 	},
 	topHeaderContainer: {
 		alignItems: "center",
-		marginBottom: 100,
+		marginTop: 50,
 		width: "100%",
 	},
 	mainTitle: {
@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
 		fontSize: 32,
 		color: "#F5F5DC",
 		textAlign: "center",
-		textShadowColor: "-1px -1px 1px rgba(0, 0, 0, 0.9), 1px 1px 1px rgba(0, 0, 0, 0.9), 1px 1px 1px rgba(0, 0, 0, 0.9)",
+		textShadowColor: "-1px -1px 1px rgba(0, 0, 0, 1), 1px 1px 1px rgba(0, 0, 0, 0.9), 1px 1px 1px rgba(0, 0, 0, 1)",
 		textShadowOffset: { width: 1, height: 2 },
 		textShadowRadius: 5,
 	},
@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
 		width: "100%",
 	},
 	neumorphicCard: {
-		backgroundColor: "rgba(255, 255, 255, 0.12)",
+		backgroundColor: "rgba(255, 255, 255, 0.01)",
 		borderRadius: 24,
 		padding: 20,
 		boxShadow: "3px 3px 6px rgba(0, 0, 0, 0.6), -3px -3px 6px rgba(255, 255, 255, 0.4)",
@@ -58,19 +58,20 @@ export const styles = StyleSheet.create({
 	fieldLabel: {
 		fontFamily: "Playpen-Regular",
 		fontSize: 14,
-		color: "#F5F5DC",
+		color: "#000",
 		marginBottom: 6,
 	},
 	transparentInput: {
 		fontFamily: "Playpen-Regular",
-		backgroundColor: "rgba(255, 255, 255, 0.15)",
+		backgroundColor: "rgba(255, 255, 255, 0.001)",
 		borderRadius: 14,
 		paddingHorizontal: 16,
 		paddingVertical: 12,
-		color: "#F5F5DC",
+		color: "#000000",
 		fontSize: 15,
 		borderWidth: 1,
-		borderColor: "rgba(255, 255, 255, 0.1)",
+		borderColor: "rgba(255, 255, 255, 0.01)",
+		boxShadow: "inset 3px 3px 6px rgba(0, 0, 0, 0.6), inset -3px -3px 6px rgba(255, 255, 255, 0.4)",
 	},
 
 	bottomButtonsContainer: {
@@ -107,7 +108,7 @@ export const styles = StyleSheet.create({
 	switchText: {
 		fontFamily: "Playpen-Regular",
 		fontSize: 14,
-		color: "#e2e8f",
+		color: "#F5F5DC",
 		textDecorationLine: "underline",
 	},
 });
