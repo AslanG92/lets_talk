@@ -1,44 +1,68 @@
-import { useRouter } from "expo-router";
-import { useState } from "react";
-import { View, Text, ScrollView, TextInput, Image, ActivityIndicator, Pressable } from "react-native";
+import { useState, useEffect } from "react";
+import { View, Text, ScrollView, TextInput, Pressable, Image, ActivityIndicator, Platform } from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useFonts, PlaypenSans_400Regular, PlaypenSans_700Bold } from "@expo-google-fonts/playpen-sans";
+import { API_ENDPOINTS } from "../constants/api";
+import { TRANSLATIONS } from "../constants/languages";
 import { styles } from "../components/chats.styles";
 
-const DUMMY_CHATS = [
-	{ id: "1", name: "Алан", lastMessage: "Раджы нӕ фӕндаг фӕци...", time: "14:32", unread: 2, avatar: "https://unsplash.com" },
-	{
-		id: "2",
-		name: "Zarina",
-		lastMessage: "See you tomorrow at the club! ☕",
-		time: "12:15",
-		unread: 0,
-		avatar: "https://unsplash.com",
-	},
-	{
-		id: "3",
-		name: "Марат",
-		lastMessage: "Ӕгас цу, куыд у дӕ хабӕрттӕ?",
-		time: "Знон",
-		unread: 1,
-		avatar: "https://unsplash.com",
-	},
-];
+interface UserProfile {
+	id: string;
+	username: string;
+	avatar_url: string | null;
+	email: string;
+}
 
 export default function ChatsScreen() {
+	const [myUserId, setMyUserId] = useState<string>("");
+	const [myUsername, setMyUsername] = useState<string>("");
+
 	const router = useRouter();
+	const { currentUsername, currentUserId } = useLocalSearchParams<{ currentUsername: string; currentUserId: string }>();
 	const [search, setSearch] = useState("");
+	const [users, setUsers] = useState<UserProfile[]>([]);
+	const [loadingUsers, setLoadingUsers] = useState(true);
+	const [lang] = useState<"en" | "os">("os");
+	const t = TRANSLATIONS[lang];
+
 	const [fontsLoaded] = useFonts({
 		"Playpen-Regular": PlaypenSans_400Regular,
 		"Playpen-Bold": PlaypenSans_700Bold,
 	});
 
-	if (!fontsLoaded) {
+	useEffect(() => {
+		const fetchUsers = async () => {
+			try {
+				const baseUrl = API_ENDPOINTS.REGISTER.replace("/auth/register", "");
+				const res = await fetch(`${baseUrl}/chats/users`);
+				const result = await res.json();
+
+				if (result.success) {
+					setUsers(result.users);
+				}
+			} catch (err) {
+				console.log("Network error while retrieving users:", err);
+			} finally {
+				setLoadingUsers(false);
+			}
+		};
+
+		fetchUsers();
+	}, []);
+
+	if (!fontsLoaded || loadingUsers) {
 		return (
 			<View style={{ flex: 1, backgroundColor: "#E5CCA0", justifyContent: "center", alignItems: "center" }}>
 				<ActivityIndicator size="large" color="#3E2F1C" />
 			</View>
 		);
 	}
+
+	const filteredUsers = users.filter((user) => {
+		const isNotMe = user.username.toLowerCase() !== (currentUsername || "").toLowerCase();
+		const matchesSearch = user.username.toLowerCase().includes(search.toLowerCase());
+		return isNotMe && matchesSearch;
+	});
 
 	return (
 		<View style={styles.container}>
@@ -47,18 +71,11 @@ export default function ChatsScreen() {
 					<Text
 						style={[
 							styles.headerTitle,
-							{
-								position: "absolute",
-								top: -1.5,
-								left: -1.5,
-								color: "#ffffff",
-								textShadowColor: "transparent",
-							},
+							{ position: "absolute", top: -1.5, left: -1.5, color: "#ffffff", textShadowColor: "transparent" },
 						]}
 					>
 						Ныхас 💬
 					</Text>
-
 					<Text style={styles.headerTitle}>Ныхас 💬</Text>
 				</View>
 
@@ -70,7 +87,7 @@ export default function ChatsScreen() {
 			<View style={styles.searchContainer}>
 				<TextInput
 					style={styles.searchNeoInput}
-					placeholder="Сгӕрсын / Search..."
+					placeholder={lang === "os" ? "Сгӕрсын..." : "Search..."}
 					placeholderTextColor="#7C6652"
 					value={search}
 					onChangeText={setSearch}
@@ -78,42 +95,53 @@ export default function ChatsScreen() {
 			</View>
 
 			<ScrollView contentContainerStyle={styles.scrollList} showsVerticalScrollIndicator={false}>
-				{DUMMY_CHATS.map((chat) => (
-					<Pressable
-						key={chat.id}
-						style={({ pressed }) => [
-							styles.chatCardNeo,
-							pressed && styles.chatCardNeoPressed,
-							{ transform: [{ scale: pressed ? 0.98 : 1 }] },
-						]}
-						onPress={() =>
-							router.push({
-								pathname: "/chat-room",
-								params: { name: chat.name, avatar: chat.avatar },
-							})
-						}
-					>
-						<View style={styles.chatRow}>
-							<Image source={{ uri: chat.avatar }} style={styles.chatAvatar} />
+				{filteredUsers.length === 0 ? (
+					<Text style={{ fontFamily: "Playpen-Regular", color: "#7C6652", textAlign: "center", marginTop: 40 }}>
+						{lang === "os" ? "Архайджытæ нæ разындысты" : "No users found"}
+					</Text>
+				) : (
+					filteredUsers.map((user) => (
+						<Pressable
+							key={user.id}
+							style={({ pressed }) => [
+								styles.chatCardNeo,
+								pressed && styles.chatCardNeoPressed,
+								{ transform: [{ scale: pressed ? 0.98 : 1 }] },
+							]}
+							onPress={() => {
+								const isAndroid = Platform.OS === "android";
+								const myId = isAndroid ? "id_aslan_test" : "id_alan_test";
+								const combinedChatId = "room_aslan_and_alan_nexus";
+								console.log("👉 ВХОД В ЕДИНУЮ ТЕСТОВУЮ КОМНАТУ:", combinedChatId);
 
-							<View style={styles.chatContent}>
-								<View style={styles.chatHeaderRow}>
-									<Text style={styles.chatName}>{chat.name}</Text>
-									<Text style={styles.chatTime}>{chat.time}</Text>
+								router.push({
+									pathname: "/chat-room",
+									params: {
+										name: user.username,
+										avatar: user.avatar_url || "https://unsplash.com",
+										chatId: combinedChatId,
+										currentUserId: myId,
+									},
+								});
+							}}
+						>
+							<View style={styles.chatRow}>
+								<Image source={{ uri: user.avatar_url || "https://unsplash.com" }} style={styles.chatAvatar} />
+								<View style={styles.chatContent}>
+									<View style={styles.chatHeaderRow}>
+										<Text style={styles.chatName}>{user.username}</Text>
+										<Text style={{ fontFamily: "Playpen-Regular", fontSize: 12, color: "#2563eb" }}>
+											{t.onlineStatus}
+										</Text>
+									</View>
+									<Text style={styles.chatMessage} numberOfLines={1}>
+										{lang === "os" ? "Бацӕуын ныхасмӕ..." : "Tap to open chat..."}
+									</Text>
 								</View>
-								<Text style={styles.chatMessage} numberOfLines={1}>
-									{chat.lastMessage}
-								</Text>
 							</View>
-
-							{chat.unread > 0 && (
-								<View style={styles.unreadBadgeNeo}>
-									<Text style={styles.unreadText}>{chat.unread}</Text>
-								</View>
-							)}
-						</View>
-					</Pressable>
-				))}
+						</Pressable>
+					))
+				)}
 			</ScrollView>
 		</View>
 	);

@@ -1,16 +1,15 @@
 import { StyleSheet, Platform } from "react-native";
 
-const BG_COLOR = "#E5CCA0"; // Твоя любимая Золотая Степь
+const BG_COLOR = "#E5CCA0";
 
 export const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: BG_COLOR,
-		paddingHorizontal: 16,
-		paddingTop: Platform.OS === "ios" ? 50 : 40,
+		paddingHorizontal: 20,
+		paddingTop: Platform.OS === "ios" ? 60 : 50,
 	},
 
-	// СТИЛИ ХЕДЕРА (Выдавленная неоморфная плашка)
 	headerNeo: {
 		flexDirection: "row",
 		alignItems: "center",
@@ -72,7 +71,6 @@ export const styles = StyleSheet.create({
 		borderRadius: 12,
 	},
 
-	// ЛЕНТА СООБЩЕНИЙ
 	messagesList: {
 		paddingVertical: 10,
 		paddingHorizontal: 16,
@@ -83,12 +81,11 @@ export const styles = StyleSheet.create({
 		width: "100%",
 	},
 
-	// Облачко ЧУЖОГО сообщения (Выдавлено в цвет фона)
 	messageCardOtherNeo: {
 		backgroundColor: BG_COLOR,
 		maxWidth: "75%",
 		borderRadius: 18,
-		borderBottomLeftRadius: 4, // Красивый уголок мессенджера
+		borderBottomLeftRadius: 4,
 		paddingHorizontal: 14,
 		paddingVertical: 10,
 		borderWidth: 1,
@@ -102,9 +99,8 @@ export const styles = StyleSheet.create({
 		color: "#3E2F1C",
 	},
 
-	// Облачко ТВОЕГО сообщения (Чуть теплее и сочнее, кофейно-замшевое)
 	messageCardMeNeo: {
-		backgroundColor: "#DCCFBF", // Благородное миндальное пралине для твоих сообщений
+		backgroundColor: "#DCCFBF",
 		maxWidth: "75%",
 		borderRadius: 18,
 		borderBottomRightRadius: 4,
@@ -118,7 +114,7 @@ export const styles = StyleSheet.create({
 	messageTextMe: {
 		fontFamily: "Playpen-Regular",
 		fontSize: 15,
-		color: "#2A1E12", // Глубокий кофейный цвет текста
+		color: "#2A1E12",
 	},
 	messageTime: {
 		fontFamily: "Playpen-Regular",
@@ -128,13 +124,13 @@ export const styles = StyleSheet.create({
 		marginTop: 4,
 	},
 
-	// НИЖНЯЯ ПАНЕЛЬ ВВОДА
 	inputContainer: {
 		flexDirection: "row",
 		alignItems: "center",
 		paddingVertical: 12,
 		backgroundColor: BG_COLOR,
 		gap: 12,
+		paddingBottom: Platform.OS === "ios" ? 30 : 30,
 	},
 	inputWrapperNeo: {
 		flex: 1,
@@ -150,7 +146,7 @@ export const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 		paddingVertical: 10,
 		fontSize: 15,
-		color: "#000000", // Чистый чёрный цвет текста при вводе!
+		color: "#000000",
 		maxHeight: 100,
 	},
 	sendButtonNeo: {

@@ -22,8 +22,10 @@ export const TRANSLATIONS = {
 		placeholderUsername: "Enter your username",
 		placeholderEmail: "Enter your email address",
 		placeholderPassword: "Enter your password",
-		online: "online ☀️",
+		online: "online",
 		placeholderMessage: "Write a message...",
+		onlineStatus: "online",
+		offlineStatus: "offline",
 	},
 	os: {
 		welcomeBack: "Ӕгас цу!",
@@ -48,7 +50,9 @@ export const TRANSLATIONS = {
 		placeholderUsername: "Ныффысс дӕ фӕсном",
 		placeholderEmail: "Ныффысс дӕ электрон поштӕ",
 		placeholderPassword: "Ныффысс дӕ сусӕг дих",
-		online: "ныры уæвæг ☀️",
+		online: "ам ис",
 		placeholderMessage: "Ныффысс фыстӕг...",
+		onlineStatus: "ам ис",
+		offlineStatus: "ам нæй",
 	},
 };

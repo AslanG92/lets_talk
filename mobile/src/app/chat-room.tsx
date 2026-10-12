@@ -1,45 +1,169 @@
-import { useState, useRef } from "react";
-import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Image } from "react-native";
+import { useState, useRef, useEffect } from "react";
+import { View, Text, TextInput, Pressable, ScrollView, Platform, Image, Keyboard, KeyboardAvoidingView } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { TRANSLATIONS } from "../constants/languages";
-import { styles } from "@/components/chat-room.styles";
+import { API_ENDPOINTS } from "../constants/api";
+import { styles } from "../components/chat-room.styles";
 
-// Тестовая переписка для визуализации
-const INITIAL_MESSAGES = [
-	{ id: "1", text: "Салам Алейкум, брат! Куыд у хабӕрттӕ?", sender: "other", time: "14:30" },
-	{ id: "2", text: "Уалейкум Салам! Пысылмон дин рӕзы, куыст цӕуы, мессенджер фысӕм! 🔥", sender: "me", time: "14:31" },
-	{ id: "3", name: "Раджы нӕ фӕндаг фӕци... Кӕд фембӕлдзыстӕм?", sender: "other", time: "14:32" },
-];
+interface Message {
+	id: string;
+	text: string;
+	sender: "me" | "other";
+	time: string;
+}
 
 export default function ChatRoomScreen() {
 	const router = useRouter();
-	const [lang, setLang] = useState<"en" | "os">("os");
+	const { name, avatar, chatId, currentUserId } = useLocalSearchParams<{
+		name: string;
+		avatar: string;
+		chatId: string;
+		currentUserId: string;
+	}>();
+
+	const [lang] = useState<"en" | "os">("os");
 	const t = TRANSLATIONS[lang];
-	const { name, avatar } = useLocalSearchParams<{ name: string; avatar: string }>(); // Получаем данные собеседника
-	const [messages, setMessages] = useState(INITIAL_MESSAGES);
+
+	const [messages, setMessages] = useState<Message[]>([]);
 	const [inputText, setInputText] = useState("");
+	const [userStatus, setUserStatus] = useState<string>(t.online);
+
 	const scrollViewRef = useRef<ScrollView>(null);
+	const wsRef = useRef<WebSocket | null>(null);
 
-	const sendMessage = () => {
-		if (!inputText.trim()) return;
+	useEffect(() => {
+		const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+		const subscription = Keyboard.addListener(showEvent, () => {
+			setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+		});
+		return () => subscription.remove();
+	}, []);
 
-		const newMessage = {
-			id: Date.now().toString(),
-			text: inputText.trim(),
-			sender: "me",
-			time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+	useEffect(() => {
+		const activeChatId = chatId || "demo_room";
+		const isAndroid = Platform.OS === "android";
+		const activeUserId =
+			currentUserId && currentUserId !== "test_current_id" && currentUserId !== "fallback_me_id"
+				? currentUserId
+				: isAndroid
+					? "id_aslan_test"
+					: "id_alan_test";
+
+		const wsUrl = API_ENDPOINTS.WS || "ws://127.0.0.1:5050/ws";
+		const ws = new WebSocket(wsUrl);
+		wsRef.current = ws;
+
+		ws.onopen = () => {
+			ws.send(
+				JSON.stringify({
+					type: "JOIN_CHAT",
+					chatId: activeChatId,
+					senderId: activeUserId,
+				}),
+			);
 		};
 
-		setMessages([...messages, newMessage]);
+		ws.onmessage = (event) => {
+			try {
+				const data = JSON.parse(event.data);
+				if (data.type === "RECEIVE_MESSAGE") {
+					const isFromMe = data.senderId === activeUserId;
+					if (!isFromMe) {
+						const incomingMsg: Message = {
+							id: data.id || Date.now().toString(),
+							text: data.text,
+							sender: "other",
+							time: data.time,
+						};
+						setMessages((prev) => [...prev, incomingMsg]);
+					}
+				}
+
+				if (data.type === "USER_STATUS_UPDATE" && data.senderId !== activeUserId) {
+					if (data.status === "typing") {
+						setUserStatus(lang === "os" ? "фыссы... ✍️" : "typing... ✍️");
+					} else if (data.status === "recording") {
+						setUserStatus(lang === "os" ? "хъӕл фыссы... 🎙️" : "recording audio... 🎙️");
+					} else {
+						setUserStatus(t.online);
+					}
+				}
+			} catch (err) {
+				console.error("Parsing error:", err);
+			}
+		};
+
+		return () => {
+			if (ws.readyState === WebSocket.OPEN) {
+				ws.send(
+					JSON.stringify({
+						type: "TYPING_STATUS",
+						chatId: activeChatId,
+						senderId: activeUserId,
+						status: "online",
+					}),
+				);
+			}
+			ws.close();
+		};
+	}, [chatId, currentUserId]);
+
+	const handleTextChange = (text: string) => {
+		setInputText(text);
+		if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+			wsRef.current.send(
+				JSON.stringify({
+					type: "TYPING_STATUS",
+					chatId: chatId || "demo_room",
+					senderId: Platform.OS === "android" ? "id_aslan_test" : "id_alan_test",
+					status: text.trim().length > 0 ? "typing" : "online",
+				}),
+			);
+		}
+	};
+
+	const sendMessage = () => {
+		if (!inputText.trim() || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+
+		const activeChatId = chatId || "demo_room";
+		const activeUserId = Platform.OS === "android" ? "id_aslan_test" : "id_alan_test";
+		const textToSend = inputText.trim();
+		const currentTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+		const myNewMessage: Message = {
+			id: Date.now().toString(),
+			text: textToSend,
+			sender: "me",
+			time: currentTime,
+		};
+		setMessages((prev) => [...prev, myNewMessage]);
 		setInputText("");
 
-		// Плавный скролл вниз при отправке
-		setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+		wsRef.current.send(
+			JSON.stringify({
+				type: "NEW_MESSAGE",
+				chatId: activeChatId,
+				senderId: activeUserId,
+				text: textToSend,
+			}),
+		);
+
+		setTimeout(() => {
+			if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+				wsRef.current.send(
+					JSON.stringify({
+						type: "TYPING_STATUS",
+						chatId: activeChatId,
+						senderId: activeUserId,
+						status: "online",
+					}),
+				);
+			}
+		}, 100);
 	};
 
 	return (
 		<View style={styles.container}>
-			{/* 👑 ВЕРХНЯЯ НЕОМОРФНАЯ ПАНЕЛЬ (HEADER) */}
 			<View style={styles.headerNeo}>
 				<Pressable
 					onPress={() => router.back()}
@@ -54,7 +178,7 @@ export default function ChatRoomScreen() {
 
 				<View style={styles.headerInfo}>
 					<Text style={styles.headerName}>{name || "Алан"}</Text>
-					<Text style={styles.headerStatus}>{t.online}</Text>
+					<Text style={styles.headerStatus}>{userStatus}</Text>
 				</View>
 
 				<View style={styles.avatarOuter}>
@@ -62,11 +186,11 @@ export default function ChatRoomScreen() {
 				</View>
 			</View>
 
-			{/* 📱 ЛЕНТА СООБЩЕНИЙ */}
 			<ScrollView
 				ref={scrollViewRef}
 				contentContainerStyle={styles.messagesList}
 				showsVerticalScrollIndicator={false}
+				keyboardShouldPersistTaps="handled"
 				onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
 			>
 				{messages.map((msg) => {
@@ -88,11 +212,7 @@ export default function ChatRoomScreen() {
 				})}
 			</ScrollView>
 
-			{/* ⌨️ НИЖНЯЯ ПАНЕЛЬ ВВОДА С КНОПКОЙ */}
-			<KeyboardAvoidingView
-				behavior={Platform.OS === "ios" ? "padding" : "padding"}
-				keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 20}
-			>
+			<KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "padding"} style={{ width: "100%" }}>
 				<View style={styles.inputContainer}>
 					<View style={styles.inputWrapperNeo}>
 						<TextInput
@@ -100,7 +220,7 @@ export default function ChatRoomScreen() {
 							placeholder={t.placeholderMessage}
 							placeholderTextColor="#7C6652"
 							value={inputText}
-							onChangeText={setInputText}
+							onChangeText={handleTextChange}
 							multiline
 							cursorColor="#000000"
 							selectionColor="#000000"
@@ -110,7 +230,7 @@ export default function ChatRoomScreen() {
 					<Pressable
 						onPress={sendMessage}
 						style={({ pressed }) => [
-							styles.backButtonNeo,
+							styles.sendButtonNeo,
 							pressed && styles.buttonPressedNeo,
 							{ transform: [{ scale: pressed ? 0.92 : 1 }] },
 						]}

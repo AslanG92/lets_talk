@@ -24,6 +24,7 @@ export const styles = StyleSheet.create({
 		textShadowColor: "rgba(130, 110, 85, 0.65)",
 		textShadowOffset: { width: 2.5, height: 2.5 },
 		textShadowRadius: 3,
+		paddingRight: Platform.OS === "ios" ? 12 : 0,
 	},
 
 	avatarNeoOuter: {

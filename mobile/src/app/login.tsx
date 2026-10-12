@@ -74,7 +74,13 @@ export default function AuthScreen() {
 
 			if (result.success) {
 				if (isLogin) {
-					router.replace("/chats");
+					router.replace({
+						pathname: "/chats",
+						params: {
+							currentUsername: username.trim(),
+							currentUserId: result.user?.id,
+						},
+					});
 				} else {
 					Alert.alert(t.success, lang === "os" ? "Ӕнтыстджынӕй регистраци рацыдтӕ!" : "Success!");
 					setIsLogin(true);

@@ -8,16 +8,9 @@ const PORT = Number(Bun.env.PORT) || 5050;
 
 const app = new Elysia()
 	.get("/ping", () => "Pong!")
-
 	.ws("/ws", {
 		open(ws) {
 			socketHandler.open(ws);
-
-			const chatId = ws.data.query?.chatId;
-			if (chatId) {
-				ws.subscribe(`chat_${chatId}`);
-				console.log(`📌 The socket is subscribed to a room: chat_${chatId}`);
-			}
 		},
 		message(ws, message) {
 			socketHandler.message(ws, message);
