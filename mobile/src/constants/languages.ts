@@ -50,9 +50,9 @@ export const TRANSLATIONS = {
 		placeholderUsername: "Ныффысс дӕ фӕсном",
 		placeholderEmail: "Ныффысс дӕ электрон поштӕ",
 		placeholderPassword: "Ныффысс дӕ сусӕг дих",
-		online: "ам ис",
+		online: "ам и",
 		placeholderMessage: "Ныффысс фыстӕг...",
-		onlineStatus: "ам ис",
+		onlineStatus: "ам и",
 		offlineStatus: "ам нæй",
 	},
 };

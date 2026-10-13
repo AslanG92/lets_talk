@@ -11,6 +11,7 @@ interface UserProfile {
 	username: string;
 	avatar_url: string | null;
 	email: string;
+	isOnline?: boolean;
 }
 
 export default function ChatsScreen() {
@@ -112,7 +113,6 @@ export default function ChatsScreen() {
 								const isAndroid = Platform.OS === "android";
 								const myId = isAndroid ? "id_aslan_test" : "id_alan_test";
 								const combinedChatId = "room_aslan_and_alan_nexus";
-								console.log("👉 ВХОД В ЕДИНУЮ ТЕСТОВУЮ КОМНАТУ:", combinedChatId);
 
 								router.push({
 									pathname: "/chat-room",
@@ -127,13 +127,12 @@ export default function ChatsScreen() {
 						>
 							<View style={styles.chatRow}>
 								<Image source={{ uri: user.avatar_url || "https://unsplash.com" }} style={styles.chatAvatar} />
+
 								<View style={styles.chatContent}>
 									<View style={styles.chatHeaderRow}>
 										<Text style={styles.chatName}>{user.username}</Text>
-										<Text style={{ fontFamily: "Playpen-Regular", fontSize: 12, color: "#2563eb" }}>
-											{t.onlineStatus}
-										</Text>
 									</View>
+
 									<Text style={styles.chatMessage} numberOfLines={1}>
 										{lang === "os" ? "Бацӕуын ныхасмӕ..." : "Tap to open chat..."}
 									</Text>
